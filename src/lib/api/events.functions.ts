@@ -341,7 +341,7 @@ async function addAssignmentsCore(
       respondedAt: null,
       replacesId: null,
       replacedById: null,
-      history: [{ at: now, by: caller.uid, byName: caller.displayName, action: "Escalado(a)", status: "pendente", note: found.length ? found.map((f) => f.message).join(" ") : undefined }],
+      history: [{ at: now, by: caller.uid, byName: caller.displayName, action: "Escalado(a)", status: "pendente", ...(found.length ? { note: found.map((f) => f.message).join(" ") } : {}) }],
       createdAt: now,
       updatedAt: now,
     };

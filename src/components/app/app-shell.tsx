@@ -14,6 +14,9 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
+// Only pages that already exist are shown in the menus.
+const READY = new Set(["/inicio", "/minhas-escalas", "/instalar"]);
+
 type NavItem = { to: string; label: string; icon: ComponentType<{ className?: string }>; badge?: number };
 
 export function AppShell() {
@@ -52,7 +55,7 @@ export function AppShell() {
   const canManage = isAdmin || auth.isLeader;
   const isActive = (to: string) => location.pathname === to || location.pathname.startsWith(to + "/");
 
-  const primary: NavItem[] = isAdmin
+  const primaryAll: NavItem[] = isAdmin
     ? [
         { to: "/inicio", label: "Painel", icon: Home },
         { to: "/eventos", label: "Escalas", icon: ClipboardList },
@@ -67,7 +70,8 @@ export function AppShell() {
         { to: "/perfil", label: "Perfil", icon: UserCircle2 },
       ];
 
-  const groups: { title: string; items: NavItem[] }[] = [
+  const primary = primaryAll.filter((i) => READY.has(i.to));
+  const groupsAll: { title: string; items: NavItem[] }[] = [
     {
       title: "Pessoal",
       items: [
@@ -93,6 +97,7 @@ export function AppShell() {
       : []),
     { title: "App", items: [{ to: "/instalar", label: "Instalar no celular", icon: Download }] },
   ];
+  const groups = groupsAll.map((g) => ({ ...g, items: g.items.filter((i) => READY.has(i.to)) })).filter((g) => g.items.length);
 
   return (
     <div className="min-h-screen bg-background md:flex">
@@ -150,7 +155,7 @@ export function AppShell() {
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/70 bg-card/95 pb-safe backdrop-blur-xl md:hidden">
-        <div className={cn("mx-auto grid max-w-md", "grid-cols-5")}>
+        <div className="mx-auto flex max-w-md justify-around">
           {primary.map((i) => (
             <BottomLink key={i.to} item={i} active={isActive(i.to)} />
           ))}
