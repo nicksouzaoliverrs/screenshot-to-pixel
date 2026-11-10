@@ -1,7 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
-  "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "NITRO_PRESET=vercel npm run build",
+  "installCommand": "bun install",
+  "buildCommand": "NITRO_PRESET=vercel bun run build",
   "crons": [{ "path": "/api/public/jobs/reminders", "schedule": "0 10 * * *" }]
 }
