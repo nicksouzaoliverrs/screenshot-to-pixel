@@ -10,33 +10,97 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as EntrarRouteImport } from './routes/entrar'
+import { Route as InstalarRouteImport } from './routes/instalar'
+import { Route as AuthenticatedMinhasEscalasRouteImport } from './routes/_authenticated/minhas-escalas'
+import { Route as ApiPublicJobsRemindersRouteImport } from './routes/api/public/jobs/reminders'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntrarRoute = EntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InstalarRoute = InstalarRouteImport.update({
+  id: '/instalar',
+  path: '/instalar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedMinhasEscalasRoute =
+  AuthenticatedMinhasEscalasRouteImport.update({
+    id: '/minhas-escalas',
+    path: '/minhas-escalas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicJobsRemindersRoute = ApiPublicJobsRemindersRouteImport.update({
+  id: '/api/public/jobs/reminders',
+  path: '/api/public/jobs/reminders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/entrar': typeof EntrarRoute
+  '/instalar': typeof InstalarRoute
+  '/minhas-escalas': typeof AuthenticatedMinhasEscalasRoute
+  '/api/public/jobs/reminders': typeof ApiPublicJobsRemindersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/entrar': typeof EntrarRoute
+  '/instalar': typeof InstalarRoute
+  '/minhas-escalas': typeof AuthenticatedMinhasEscalasRoute
+  '/api/public/jobs/reminders': typeof ApiPublicJobsRemindersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/entrar': typeof EntrarRoute
+  '/instalar': typeof InstalarRoute
+  '/_authenticated/minhas-escalas': typeof AuthenticatedMinhasEscalasRoute
+  '/api/public/jobs/reminders': typeof ApiPublicJobsRemindersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/entrar'
+    | '/instalar'
+    | '/minhas-escalas'
+    | '/api/public/jobs/reminders'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/entrar'
+    | '/instalar'
+    | '/minhas-escalas'
+    | '/api/public/jobs/reminders'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/entrar'
+    | '/instalar'
+    | '/_authenticated/minhas-escalas'
+    | '/api/public/jobs/reminders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  EntrarRoute: typeof EntrarRoute
+  InstalarRoute: typeof InstalarRoute
+  ApiPublicJobsRemindersRoute: typeof ApiPublicJobsRemindersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +112,61 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entrar': {
+      id: '/entrar'
+      path: '/entrar'
+      fullPath: '/entrar'
+      preLoaderRoute: typeof EntrarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/instalar': {
+      id: '/instalar'
+      path: '/instalar'
+      fullPath: '/instalar'
+      preLoaderRoute: typeof InstalarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/minhas-escalas': {
+      id: '/_authenticated/minhas-escalas'
+      path: '/minhas-escalas'
+      fullPath: '/minhas-escalas'
+      preLoaderRoute: typeof AuthenticatedMinhasEscalasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/jobs/reminders': {
+      id: '/api/public/jobs/reminders'
+      path: '/api/public/jobs/reminders'
+      fullPath: '/api/public/jobs/reminders'
+      preLoaderRoute: typeof ApiPublicJobsRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedMinhasEscalasRoute: typeof AuthenticatedMinhasEscalasRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedMinhasEscalasRoute: AuthenticatedMinhasEscalasRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  EntrarRoute: EntrarRoute,
+  InstalarRoute: InstalarRoute,
+  ApiPublicJobsRemindersRoute: ApiPublicJobsRemindersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

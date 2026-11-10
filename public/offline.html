@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#1d2547" />
+<title>Sem conexão — Escala+</title>
+<link rel="icon" href="/favicon.png" />
+<style>
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: radial-gradient(120% 80% at 85% 0%,#34407a 0%,#1d2547 55%,#141a35 100%); color:#f6f1e6; padding:24px; box-sizing:border-box; text-align:center; }
+  .card { max-width:360px; }
+  img { width:88px; height:88px; border-radius:22px; }
+  h1 { font-size:22px; margin:20px 0 8px; }
+  p { opacity:.85; line-height:1.5; margin:0 0 24px; }
+  button { font:inherit; font-weight:700; border:0; border-radius:14px; padding:14px 22px; background:#e0b866; color:#2a2110; width:100%; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img src="/icons/icon-192.png" alt="" />
+    <h1>Você está sem internet</h1>
+    <p>Não foi possível abrir esta página agora. Confirmações de presença só são registradas com conexão. Assim que a internet voltar, tente novamente.</p>
+    <button onclick="location.reload()">Tentar novamente</button>
+  </div>
+  <script>window.addEventListener('online', function(){ location.reload(); });</script>
+</body>
+</html>
