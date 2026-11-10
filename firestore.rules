@@ -1,0 +1,112 @@
+rules_version = '2';
+// Escala+ security rules. Writes that affect other people (schedules, notifications, accounts,
+// members, ministries, events) only happen through the app's server with a service account, so
+// the browser can only read what it is allowed to and change a few personal things.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function acc() { return get(/databases/$(database)/documents/accounts/$(request.auth.uid)).data; }
+    function active() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/accounts/$(request.auth.uid))
+        && acc().status == 'ativo';
+    }
+    function isAdmin() {
+      return active()
+        && exists(/databases/$(database)/documents/roles/$(request.auth.uid))
+        && get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.admin == true;
+    }
+    function myMemberId() { return acc().memberId; }
+    function leaderOf(ministryId) { return active() && ministryId in acc().leaderOf; }
+    function isLeader() { return active() && acc().leaderOf.size() > 0; }
+
+    // Public branding (church name, logo, colors). No secrets live here.
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /accounts/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if false;
+    }
+    match /roles/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if false;
+    }
+
+    match /ministries/{id} {
+      allow read: if active();
+      allow write: if false;
+    }
+
+    match /functions/{id} {
+      allow read: if active();
+      allow create: if isAdmin() || leaderOf(request.resource.data.ministryId);
+      allow update: if isAdmin()
+        || (leaderOf(resource.data.ministryId) && request.resource.data.ministryId == resource.data.ministryId);
+      allow delete: if isAdmin() || leaderOf(resource.data.ministryId);
+    }
+
+    match /members/{id} {
+      allow read: if active();
+      allow write: if false;
+    }
+    match /memberPrivate/{id} {
+      allow read: if isAdmin()
+        || (active() && myMemberId() == id)
+        || (isLeader() && acc().leaderOf.hasAny(get(/databases/$(database)/documents/members/$(id)).data.ministryIds));
+      allow write: if false;
+    }
+
+    match /events/{id} {
+      allow read: if active();
+      allow write: if false;
+    }
+    match /eventTemplates/{id} {
+      allow read: if active();
+      allow write: if isAdmin();
+    }
+    match /assignments/{id} {
+      allow read: if active();
+      allow write: if false;
+    }
+
+    match /unavailabilities/{id} {
+      function validDates(d) {
+        return d.startDate is string && d.endDate is string && d.startDate <= d.endDate
+          && d.reason is string && d.reason.size() <= 300 && d.startMs is int;
+      }
+      allow read: if isAdmin() || isLeader() || (active() && resource.data.userId == request.auth.uid);
+      allow create: if active() && validDates(request.resource.data)
+        && (isAdmin() || (request.resource.data.memberId == myMemberId() && request.resource.data.userId == request.auth.uid));
+      // People can edit or cancel their own unavailability while it is still in the future.
+      allow update: if active() && validDates(request.resource.data)
+        && request.resource.data.memberId == resource.data.memberId
+        && (isAdmin() || (resource.data.userId == request.auth.uid && resource.data.startMs > request.time.toMillis()
+            && request.resource.data.userId == request.auth.uid));
+      allow delete: if isAdmin() || (active() && resource.data.userId == request.auth.uid && resource.data.startMs > request.time.toMillis());
+    }
+
+    match /notices/{id} {
+      allow read: if isAdmin() || (active() && request.auth.uid in resource.data.recipientUserIds);
+      allow write: if false;
+    }
+
+    match /notifications/{id} {
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow update: if signedIn() && resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if false;
+    }
+
+    match /pushTokens/{id} {
+      allow read, write: if false;
+    }
+    match /activity/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+  }
+}
