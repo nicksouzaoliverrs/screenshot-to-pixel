@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as InstalarRouteImport } from './routes/instalar'
+import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedMinhasEscalasRouteImport } from './routes/_authenticated/minhas-escalas'
 import { Route as ApiPublicJobsRemindersRouteImport } from './routes/api/public/jobs/reminders'
 
@@ -35,6 +36,11 @@ const InstalarRoute = InstalarRouteImport.update({
   path: '/instalar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
+  id: '/inicio',
+  path: '/inicio',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMinhasEscalasRoute =
   AuthenticatedMinhasEscalasRouteImport.update({
     id: '/minhas-escalas',
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/entrar': typeof EntrarRoute
   '/instalar': typeof InstalarRoute
+  '/inicio': typeof AuthenticatedInicioRoute
   '/minhas-escalas': typeof AuthenticatedMinhasEscalasRoute
   '/api/public/jobs/reminders': typeof ApiPublicJobsRemindersRoute
 }
@@ -58,6 +65,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/entrar': typeof EntrarRoute
   '/instalar': typeof InstalarRoute
+  '/inicio': typeof AuthenticatedInicioRoute
   '/minhas-escalas': typeof AuthenticatedMinhasEscalasRoute
   '/api/public/jobs/reminders': typeof ApiPublicJobsRemindersRoute
 }
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/entrar': typeof EntrarRoute
   '/instalar': typeof InstalarRoute
+  '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/minhas-escalas': typeof AuthenticatedMinhasEscalasRoute
   '/api/public/jobs/reminders': typeof ApiPublicJobsRemindersRoute
 }
@@ -76,6 +85,7 @@ export interface FileRouteTypes {
     | '/'
     | '/entrar'
     | '/instalar'
+    | '/inicio'
     | '/minhas-escalas'
     | '/api/public/jobs/reminders'
   fileRoutesByTo: FileRoutesByTo
@@ -83,6 +93,7 @@ export interface FileRouteTypes {
     | '/'
     | '/entrar'
     | '/instalar'
+    | '/inicio'
     | '/minhas-escalas'
     | '/api/public/jobs/reminders'
   id:
@@ -91,6 +102,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/entrar'
     | '/instalar'
+    | '/_authenticated/inicio'
     | '/_authenticated/minhas-escalas'
     | '/api/public/jobs/reminders'
   fileRoutesById: FileRoutesById
@@ -133,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InstalarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/inicio': {
+      id: '/_authenticated/inicio'
+      path: '/inicio'
+      fullPath: '/inicio'
+      preLoaderRoute: typeof AuthenticatedInicioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/minhas-escalas': {
       id: '/_authenticated/minhas-escalas'
       path: '/minhas-escalas'
@@ -151,10 +170,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedMinhasEscalasRoute: typeof AuthenticatedMinhasEscalasRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedMinhasEscalasRoute: AuthenticatedMinhasEscalasRoute,
 }
 

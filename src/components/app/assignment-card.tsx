@@ -14,11 +14,11 @@ export function AssignmentCard({
   highlight,
 }: {
   assignment: Assignment;
-  event?: ChurchEvent;
-  ministry?: Ministry;
-  fn?: MinistryFunction;
+  event?: ChurchEvent | undefined;
+  ministry?: Ministry | undefined;
+  fn?: MinistryFunction | undefined;
   deadlineHours: number;
-  highlight?: boolean;
+  highlight?: boolean | undefined;
 }) {
   const cancelled = assignment.eventStatus === "cancelado";
   return (

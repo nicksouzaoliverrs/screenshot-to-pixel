@@ -31,7 +31,7 @@ export const MINISTRY_COLORS = ["#2F3E8C", "#C9A34E", "#2E8B6E", "#C2553A", "#7A
 
 export const mStyle = (m?: Pick<Ministry, "color"> | null) => ({ "--m": m?.color ?? "#2F3E8C" }) as CSSProperties;
 
-export function MinistryIcon({ ministry, size = "md", className }: { ministry?: Pick<Ministry, "icon" | "color" | "logo"> | null; size?: "sm" | "md" | "lg"; className?: string }) {
+export function MinistryIcon({ ministry, size = "md", className }: { ministry?: Pick<Ministry, "icon" | "color" | "logo"> | null | undefined; size?: "sm" | "md" | "lg"; className?: string }) {
   const Icon = MINISTRY_ICONS[(ministry?.icon as MinistryIconKey) ?? "sparkles"] ?? Sparkles;
   const box = { sm: "h-7 w-7 rounded-lg", md: "h-10 w-10 rounded-xl", lg: "h-14 w-14 rounded-2xl" }[size];
   const ic = { sm: "h-3.5 w-3.5", md: "h-5 w-5", lg: "h-7 w-7" }[size];
@@ -43,7 +43,7 @@ export function MinistryIcon({ ministry, size = "md", className }: { ministry?: 
   );
 }
 
-export function MinistryChip({ ministry, className }: { ministry?: Pick<Ministry, "name" | "color"> | null; className?: string }) {
+export function MinistryChip({ ministry, className }: { ministry?: Pick<Ministry, "name" | "color"> | null | undefined; className?: string }) {
   if (!ministry) return null;
   return (
     <span style={mStyle(ministry)} className={cn("inline-flex items-center gap-1.5 rounded-full bg-ministry-soft px-2.5 py-1 text-[11px] font-bold text-ministry", className)}>
