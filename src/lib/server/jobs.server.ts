@@ -37,7 +37,7 @@ export async function runReminders(now: number) {
 
   // Scheduled notices whose time has come.
   const notices = (await query<Notice & { delivered?: boolean }>("notices", { where: [["publishAt", "<=", now]], orderBy: [["publishAt", "desc"]], limit: 50 })).filter((n) => !n.delivered);
-  const { deliverNotice } = await import("../api/notices.functions");
+  const { deliverNotice } = await import("./notices.server");
   for (const n of notices) await deliverNotice(n.id);
 
   // Retry push for notifications still pending (e.g. a send failed mid-way).

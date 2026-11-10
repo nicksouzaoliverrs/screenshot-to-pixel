@@ -58,29 +58,13 @@ export const publishNotice = createServerFn({ method: "POST" })
     };
     await g.setDoc(`notices/${id}`, notice as never, false);
     // Scheduled notices are delivered by the reminders job once publishAt passes.
-    if (notice.publishAt <= now + 60_000) await deliverNotice(id);
+    if (notice.publishAt <= now + 60_000) {
+      const { deliverNotice } = await import("@/lib/server/notices.server");
+      await deliverNotice(id);
+    }
     await ctx.logActivity(c, "Publicou comunicado", "comunicado", id, data.title);
     return { id, recipients: recipientUserIds.length };
   });
-
-export async function deliverNotice(id: string) {
-  const g = await import("@/lib/server/google.server");
-  const ctx = await import("@/lib/server/context.server");
-  const n = await g.getDoc<Notice>(`notices/${id}`);
-  if (!n) return;
-  const prefix = n.priority === "urgente" ? "Urgente: " : n.priority === "importante" ? "Importante: " : "";
-  await ctx.notify(
-    n.recipientUserIds.map((u) => ({
-      userId: u,
-      kind: "comunicado" as const,
-      title: `${prefix}${n.title}`,
-      body: n.body.slice(0, 180),
-      link: "/comunicados",
-      key: `comunicado_${id}_${u}`,
-    })),
-  );
-  await g.setDoc(`notices/${id}`, { delivered: true });
-}
 
 export const deleteNotice = createServerFn({ method: "POST" })
   .middleware([requireFirebaseAuth])
