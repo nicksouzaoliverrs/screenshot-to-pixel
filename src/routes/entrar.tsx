@@ -36,6 +36,7 @@ function authError(code: string) {
     "auth/network-request-failed": "Sem conexão com a internet.",
     "auth/unauthorized-domain": "Este endereço ainda não foi autorizado no Firebase (Authentication → Settings → Authorized domains).",
     "auth/operation-not-allowed": "Este tipo de login ainda não foi ativado no Firebase.",
+    nome: "Informe seu nome completo.",
   };
   return map[code] ?? "Não foi possível entrar. Tente novamente.";
 }
