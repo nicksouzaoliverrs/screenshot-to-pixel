@@ -64,6 +64,7 @@ export const saveMinistry = createServerFn({ method: "POST" })
       writes.push({ type: "set", path: `functions/${fid}`, data: fn as never });
     });
     await g.commit(writes);
+    await ctx.refreshLeaderOf([...(existing?.leaderUserIds ?? []), ...leaderUserIds]);
     await ctx.logActivity(context.caller, existing ? "Ministério atualizado" : "Ministério criado", "ministerio", id, data.name);
     return { id };
   });
@@ -96,6 +97,7 @@ export const deleteMinistry = createServerFn({ method: "POST" })
         merge: true,
       })),
     ]);
+    await ctx.refreshLeaderOf(m?.leaderUserIds ?? []);
     await ctx.logActivity(context.caller, "Ministério excluído", "ministerio", data.id, m?.name ?? "");
     return { ok: true };
   });
@@ -176,6 +178,7 @@ export const saveMember = createServerFn({ method: "POST" })
       if (existing.userId) writes.push({ type: "set", path: `accounts/${existing.userId}`, data: { status: data.active ? "ativo" : "bloqueado" }, merge: true });
     }
     await g.commit(writes);
+    if (existing?.userId) await ctx.refreshLeaderOf([existing.userId]);
 
     // A pending account with the same verified e-mail is linked automatically.
     if (!memberDoc.userId && data.email) {

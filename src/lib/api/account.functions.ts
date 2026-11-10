@@ -24,6 +24,7 @@ export const syncAccount = createServerFn({ method: "POST" })
         photoURL: c.picture,
         memberId: null,
         status: "pendente",
+        leaderOf: [],
         createdAt: now,
         lastSeenAt: now,
       };
@@ -99,7 +100,12 @@ async function linkAccountToMember(uid: string, memberId: string, memberActive: 
   const ministries = await g.query<Ministry>("ministries", { where: [["leaderMemberIds", "array-contains", memberId]] });
   await g.commit([
     { type: "set", path: `members/${memberId}`, data: { userId: uid }, merge: true },
-    { type: "set", path: `accounts/${uid}`, data: { memberId, status: memberActive ? "ativo" : "bloqueado" }, merge: true },
+    {
+      type: "set",
+      path: `accounts/${uid}`,
+      data: { memberId, status: memberActive ? "ativo" : "bloqueado", leaderOf: ministries.filter((m) => m.active).map((m) => m.id) },
+      merge: true,
+    },
     ...ministries.map((m) => ({
       type: "set" as const,
       path: `ministries/${m.id}`,

@@ -11,6 +11,8 @@ export interface Account {
   photoURL: string | null;
   memberId: string | null;
   status: AccountStatus;
+  /** Ministry ids this account leads (server-maintained; used by security rules). */
+  leaderOf: string[];
   createdAt: number;
   lastSeenAt: number;
 }
@@ -161,6 +163,8 @@ export interface Unavailability {
   userId: string | null;
   startDate: string;
   endDate: string;
+  /** Epoch ms of startDate 00:00 in the church timezone (used by security rules). */
+  startMs: number;
   reason: string;
   createdAt: number;
   createdBy: string;

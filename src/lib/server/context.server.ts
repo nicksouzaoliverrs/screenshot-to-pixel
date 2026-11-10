@@ -185,4 +185,15 @@ export async function membersById(ids: string[]) {
   return new Map(list.map((m) => [m.id, m]));
 }
 
+/** Recompute accounts.leaderOf for the given users (used by the security rules). */
+export async function refreshLeaderOf(uids: string[]) {
+  const unique = Array.from(new Set(uids.filter(Boolean)));
+  const writes = [];
+  for (const uid of unique) {
+    const ms = await query<Ministry>("ministries", { where: [["leaderUserIds", "array-contains", uid]] });
+    writes.push({ type: "set" as const, path: `accounts/${uid}`, data: { leaderOf: ms.filter((m) => m.active).map((m) => m.id) }, merge: true });
+  }
+  await commit(writes);
+}
+
 export { setDoc };
