@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, type R
 import type { User } from "firebase/auth";
 import { doc } from "firebase/firestore";
 import { isFirebaseConfigured } from "./firebase/config";
+import { fbDb } from "./firebase/client";
 import { useLiveDoc } from "./firebase/live";
 import type { Account, Member } from "./types";
 
@@ -78,16 +79,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const accountLive = useLiveDoc<Account>(user ? `account:${user.uid}` : null, () =>
-    // Lazy import keeps Firestore out of the server render.
-    user ? doc(require_db(), "accounts", user.uid) : null,
+    user ? doc(fbDb(), "accounts", user.uid) : null,
   );
   const roleLive = useLiveDoc<{ id: string; admin: boolean }>(user && accountLive.data?.status === "ativo" ? `role:${user.uid}` : null, () =>
-    user ? doc(require_db(), "roles", user.uid) : null,
+    user ? doc(fbDb(), "roles", user.uid) : null,
   );
   const account = accountLive.data;
   const active = account?.status === "ativo";
   const memberLive = useLiveDoc<Member>(active && account?.memberId ? `me:${account.memberId}` : null, () =>
-    doc(require_db(), "members", account!.memberId!),
+    doc(fbDb(), "members", account!.memberId!),
   );
 
   const value = useMemo<AuthValue>(() => {
@@ -110,12 +110,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [status, user, account, accountLive.loading, memberLive.data, roleLive.data, active, syncing, syncError]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
-}
-
-// Firestore is only touched from effects (client side).
-import { fbDb } from "./firebase/client";
-function require_db() {
-  return fbDb();
 }
 
 export function useAuth(): AuthValue {
