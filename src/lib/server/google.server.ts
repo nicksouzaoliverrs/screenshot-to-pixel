@@ -296,7 +296,7 @@ export async function sendPush(
       message: {
         token: deviceToken,
         data: { title: msg.title, body: msg.body, url: msg.url, tag: msg.tag },
-        webpush: { headers: { Urgency: "high", TTL: "86400" }, fcm_options: { link: msg.url } },
+        webpush: { headers: { Urgency: "high", TTL: "86400" } },
       },
     }),
   });
