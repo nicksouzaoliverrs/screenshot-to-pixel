@@ -5,7 +5,8 @@ import { PageHeader, EmptyState, Loading, SectionTitle } from "@/components/app/
 import { AssignmentCard } from "@/components/app/assignment-card";
 import { MonthGrid } from "@/components/app/month-grid";
 import { useMe } from "@/lib/auth";
-import { useEventsByIds, useFunctions, useMemberAssignments, useMinistries, useSettings } from "@/lib/data";
+import { useEventsRange, useFunctions, useMemberAssignments, useMinistries, useSettings } from "@/lib/data";
+import { addDays } from "@/lib/domain/time";
 import { useToday } from "@/hooks/use-today";
 import { fmtDateLong } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -37,8 +38,8 @@ function MySchedules() {
   const relevant = asg.data.filter((a) => a.status !== "substituido" || a.eventDate < today);
   const upcoming = relevant.filter((a) => a.eventDate >= today);
   const past = [...relevant.filter((a) => a.eventDate < today)].reverse();
-  const visibleIds = useMemo(() => Array.from(new Set([...upcoming, ...past.slice(0, 20)].map((a) => a.eventId))), [upcoming, past]);
-  const events = useEventsByIds(visibleIds.slice(0, 30));
+  const eventsLive = useEventsRange(addDays(today, -180), null);
+  const events = useMemo(() => ({ byId: new Map(eventsLive.data.map((e) => [e.id, e])) }), [eventsLive.data]);
   const pending = upcoming.filter((a) => a.status === "pendente" && a.eventStatus === "ativo");
 
   const marks = useMemo(() => {
