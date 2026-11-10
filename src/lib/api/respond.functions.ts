@@ -199,8 +199,8 @@ export const chooseSubstitute = createServerFn({ method: "POST" })
       },
       merge: true,
     });
-    await g.commit(writes);
     const prevSub = a.replacedById ? await g.getDoc<Assignment>(`assignments/${a.replacedById}`) : null;
+    await g.commit(writes);
     await ctx.notify([
       ...(sub.userId
         ? [{ userId: sub.userId, kind: "substituicao_solicitada" as const, title: "Pedido de substituição", body: `Você pode servir em ${fn.name} · ${min.name} — ${label(ev)}? Confirme ou recuse.`, link: "/minhas-escalas", key: `subreq_${id}` }]
